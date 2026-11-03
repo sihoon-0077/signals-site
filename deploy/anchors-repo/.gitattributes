@@ -1,0 +1,16 @@
+# 줄바꿈 고정. Windows Git(core.autocrlf=true)으로 clone·commit해도 스크립트가 CRLF로 바뀌지 않게 한다
+# (CRLF가 되면 러너에서 'set: pipefail\r: invalid option name'으로 매일 첫 줄에서 멈춘다).
+# GitHub 웹의 'Upload files'는 이 파일을 무시하므로 이 저장소에는 git으로 올린다.
+* text=auto eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+# 앵커 문서와 공개키 목록은 받은 바이트 그대로 둔다(LF 그대로). .ots(비트코인 증명)는 이 바이트의 해시에 묶여 있어서,
+# git이 줄바꿈을 바꾸면 Windows에서 받은 사본으로 ots verify가 'File does not match original!'로 실패한다.
+/anchors/*.json -text
+/keys.json -text
+*.ots binary

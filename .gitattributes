@@ -1,0 +1,16 @@
+# 줄바꿈 고정: 이 PC의 Git은 core.autocrlf=true라, 지정하지 않으면 받을 때 CRLF로 바뀐다.
+# deploy/anchors-repo의 셸 스크립트가 CRLF가 되면 리눅스(GitHub Actions)에서 시작하자마자 실패하므로 전부 LF로 둔다.
+* text=auto eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# 바이너리(실제 TSA 토큰 픽스처 등)는 줄바꿈 변환 금지
+*.der binary
+*.ots binary
+*.ico binary
+*.png binary
+*.woff binary
+*.woff2 binary
+*.ttf binary

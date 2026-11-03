@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# SIGNALS: 로컬 DB(PGlite)와 개발용 서명 키 — 절대 커밋하지 않는다
+/.data/
+/anchors-out/
+!.env.example

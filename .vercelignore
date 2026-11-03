@@ -1,0 +1,7 @@
+# Vercel CLI(vercel, vercel deploy, vercel build --prebuilt)로 올리지 않을 로컬 전용 파일.
+# 평소 배포는 GitHub push → Vercel Git 연동이라 저장소에 없는 이 파일들은 애초에 올라가지 않는다.
+# next.config.ts의 outputFileTracingExcludes는 Windows 빌드에서 효과가 없어(경로 구분자) 이 파일이 실제 방어선이다.
+/.data/
+/anchors-out/
+/.env*
+!/.env.example

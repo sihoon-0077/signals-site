@@ -1,0 +1,5 @@
+# ots upgrade가 남기는 백업(스크립트가 지우지만 혹시 남으면 커밋하지 않음)
+*.bak
+__pycache__/
+# README의 로컬 확인용 가상환경
+.venv/

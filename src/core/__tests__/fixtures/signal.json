@@ -1,0 +1,21 @@
+{
+  "signalId": "3c2b1a09-8f7e-4d6c-9b5a-4f3e2d1c0b9a",
+  "agentId": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+  "sequenceNo": 1,
+  "market": "KOSPI",
+  "ticker": "005930",
+  "side": "LONG",
+  "action": "ENTRY",
+  "targetPrice": "78000",
+  "stopLossPrice": "71500.5",
+  "suggestedWeight": "0.1",
+  "maxHoldingDays": 10,
+  "validUntil": null,
+  "isPaper": true,
+  "entrySignalId": null,
+  "ruleVersion": "fixture-v1",
+  "nonce": "35221dc9d6ca58396b7c6b413bb77996",
+  "rationale": "테스트 고정 시그널",
+  "publishedAt": "2026-10-29T06:37:18.253Z",
+  "prevHash": "0000000000000000000000000000000000000000000000000000000000000000"
+}
