@@ -159,3 +159,54 @@ describe("처리방침 시행일", () => {
     expect(t).toContain(`시행일: ${applied}`);
   });
 });
+
+// 대학생 서면 인터뷰 설문(Google 설문지)은 사이트 밖의 처리지만 처리자가 같아 함께 적는다(signals/docs/11 5절).
+// 설문 보관처는 운영 메일 업체(MAIL_SERVICE)가 바뀌어도 그대로이고, 국외 이전 근거도 위 업체들의 제3호 가목이 아니라 설문에서 받은 별도 동의(제1호)다.
+describe("처리방침: 대학생 서면 인터뷰 설문", () => {
+  /** 3항에서 설문 보관 문단(<p>) */
+  const surveyItem = (html: string) => section3(html).match(/<p><strong>대학생 서면 인터뷰 설문\(1항\):<\/strong>(?:(?!<p>)[\s\S])*?<\/p>/)?.[0] ?? "";
+
+  it("3항의 Google LLC 설문 보관 항목은 MAIL_SERVICE와 상관없이 같은 글로, 사이트 업체들의 이전 근거·거부 문단 뒤에 나온다", () => {
+    const pages = [FOREIGN, DOMESTIC, "", "Gmail"].map((v) => render(v));
+    const items = pages.map(surveyItem);
+    expect(items[0]).not.toBe("");
+    for (const item of items) expect(item).toBe(items[0]);
+    const t = text(items[0]);
+    for (const s of [
+      "응답은 Google LLC(미국, googlekrsupport@google.com)의 Google 설문지로 받아 보관하며, 설문지에 연결한 Google 스프레드시트에도 같은 응답이 저장됩니다.",
+      "이전 항목: 휴대전화 번호, 번호와 함께 제출한 설문 응답 / 이전 국가: 미국 등 Google 데이터센터가 있는 국가",
+      "시기·방법: 설문을 제출할 때 암호화된 연결(HTTPS)로 전송 / 보유·이용 기간: 2항의 설문 보유 기간과 같음",
+      // 바로 위 업체들의 '이전 근거'(제3호 가목)는 국가 단위로 적혀 있어, 같은 미국으로 가는 설문 보관은 근거가 다르다는 것을 밝힌다
+      "이전 근거: 위 업체들의 이전(제3호 가목)과 달리 개인정보 보호법 제28조의8 제1항 제1호(설문에서 따로 받은 국외 이전 동의).",
+      "이전을 원하지 않으면 번호를 남기지 않고 익명으로 제출하거나, 번호를 남긴 뒤 6항 연락처로 삭제를 요청할 수 있으며, 이 경우 경품·인터뷰 연락을 받을 수 없습니다.",
+    ]) {
+      expect(t).toContain(s);
+    }
+    for (const html of pages) {
+      // 위 '이전 근거'(제3호 가목, '위 사항')가 설문 보관까지 덮는 것으로 읽히지 않게 그 문단과 거부 문단 뒤에 둔다
+      const s3 = section3(html);
+      expect(s3.indexOf("대학생 서면 인터뷰 설문(1항):")).toBeGreaterThan(s3.indexOf("사이트를 이용하지 않는 것 외에는 거부할 수 없습니다."));
+    }
+    // smoke·mailItem은 '운영 메일'로 메일 업체 항목을 찾는다: 설문 항목이 그 말을 쓰면 MAIL_SERVICE가 없어도 점검이 통과할 수 있다
+    expect(items[0]).not.toContain("운영 메일");
+    expect(pages[2]).not.toContain("운영 메일(본인 확인·승인 안내·시그널 접수·문의 답변)을 주고받고 보관");
+  });
+
+  it("1항은 목적별 항목(①·②)을, 2항은 목적별 파기 시점을 설문 동의 문구와 같게 적는다", () => {
+    const html = render(FOREIGN);
+    const s1 = text(section1(html));
+    expect(s1).toContain("고른 목적마다 설문에서 따로 받은 동의에 따라 처리합니다. 번호를 남기면 설문 응답도 번호와 함께 저장됩니다.");
+    // 첫머리의 '최소한의 개인정보만'이 설문 처리를 빠뜨린 문장이 되지 않게 한다
+    expect(text(html)).toContain(
+      "문의 답변에 필요한 최소한의 개인정보만 처리합니다. 대학생 서면 인터뷰 설문(1항)에서 휴대전화 번호를 남긴 분의 정보도 고른 목적(경품·인터뷰 연락)에 필요한 만큼만 처리합니다.",
+    );
+    expect(s1).toContain("① 경품 받기: 휴대전화 번호 — 경품 당첨 연락과 전달(운영자가 직접 문자로 연락)·중복 참여 확인");
+    expect(s1).toContain("② 인터뷰 연락: 휴대전화 번호, 설문 응답 — 30분 온라인 인터뷰 일정 연락(전화·문자)");
+    const s2 = text(section2(html));
+    // 인터뷰 후보가 아니거나 인터뷰를 하지 않기로 정해지면 그때 지운다(개인정보 보호법 제21조: 필요 없게 되면 지체 없이 파기)
+    expect(s2).toContain(
+      "① 경품은 전달을 마치면 바로(늦어도 2026년 12월 31일), ② 인터뷰 연락은 인터뷰를 마치거나 하지 않기로 정해진 날(늦어도 2026년 12월 31일)입니다.",
+    );
+    expect(s2).toContain("번호를 지운 뒤 설문 응답은 번호 없이 익명으로만 남깁니다.");
+  });
+});

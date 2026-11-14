@@ -5,7 +5,7 @@ export const metadata: Metadata = { title: "개인정보 처리방침" };
 export const dynamic = "force-dynamic";
 
 /** 시행일: 처음 공개하는 날. 실행할 때 계산하지 않는다(날짜가 매일 바뀌면 고지가 무의미해진다). 바꿀 때는 8항의 고지 기간을 지킨다. */
-const EFFECTIVE_DATE = "2026년 11월 3일";
+const EFFECTIVE_DATE = "2026년 11월 14일";
 
 /** Vercel(미국)·Supabase(싱가포르, 하위 처리자는 미국)로 이전되는 국가. 해외 메일 업체의 국가는 화면을 그릴 때 더한다. */
 const PROCESSOR_COUNTRIES = ["미국", "싱가포르"];
@@ -15,6 +15,8 @@ const PROCESSOR_COUNTRIES = ["미국", "싱가포르"];
 // MAIL_SERVICE를 바꾸면 3항(위탁·국외 이전)이 바뀌므로 8항대로 30일 전에 알리고 이전 처리방침을 남긴다.
 // 문구는 실제 처리와 같아야 한다: 수집 항목은 services/registration.ts, 탈퇴·파기는 repo/providers.ts, 방문 집계는 components/referral-tracker.tsx,
 // 시그널 접수·문의 메일 삭제·탈퇴 기록은 DEPLOY.md 8절.
+// 대학생 서면 인터뷰 설문(1~3항)은 사이트 밖의 처리지만 처리자가 같아 함께 적는다. 사실은 저장소 밖의 signals/docs/11_대학생_서면인터뷰_설문.md 5절과
+// 설문 동의 문구(signals/tools/google_form_student_survey.spec.json)를 따른다. 설문 보관처(Google 설문지와 연결한 스프레드시트)는 MAIL_SERVICE와 상관없는 고정 문구다.
 export default function PrivacyPage() {
   const officer = process.env.PRIVACY_OFFICER || "(배포 전 PRIVACY_OFFICER 설정 필요)";
   const contact = process.env.CONTACT_EMAIL || "(배포 전 CONTACT_EMAIL 설정 필요)";
@@ -27,7 +29,8 @@ export default function PrivacyPage() {
     <article className="mx-auto max-w-3xl space-y-8 leading-relaxed">
       <h1 className="text-2xl font-bold sm:text-3xl">개인정보 처리방침</h1>
       <p className="text-muted-foreground">
-        SIGNALS(이하 &apos;운영자&apos;)는 공급자 사전등록, 기록 공개와 문의 답변에 필요한 최소한의 개인정보만 처리합니다.
+        SIGNALS(이하 &apos;운영자&apos;)는 공급자 사전등록, 기록 공개와 문의 답변에 필요한 최소한의 개인정보만 처리합니다. 대학생 서면 인터뷰
+        설문(1항)에서 휴대전화 번호를 남긴 분의 정보도 고른 목적(경품·인터뷰 연락)에 필요한 만큼만 처리합니다.
       </p>
 
       <section className="space-y-2">
@@ -68,6 +71,15 @@ export default function PrivacyPage() {
             자동 생성(모든 방문자): 접속 IP 주소, 브라우저 정보, 요청한 주소와 시각 — 호스팅 업체(Vercel)가 사이트를 제공하는 과정에서 자동으로 처리하며,
             운영자는 장애·보안 대응에만 확인합니다. 사이트 데이터베이스에는 저장하지 않습니다.
           </li>
+          {/* 번호 없이 낸 익명 응답은 개인정보가 아니라 적지 않는다. ①·②는 설문 동의 문구의 번호·이름과 같게 둔다 */}
+          <li>
+            대학생 서면 인터뷰 설문(Google 설문지, 만 19세 이상만 참여): 경품이나 인터뷰 연락을 원해 휴대전화 번호를 남긴 분의 정보만, 고른 목적마다 설문에서
+            따로 받은 동의에 따라 처리합니다. 번호를 남기면 설문 응답도 번호와 함께 저장됩니다.
+            <ul className="mt-1 list-[circle] space-y-1 pl-5">
+              <li>① 경품 받기: 휴대전화 번호 — 경품 당첨 연락과 전달(운영자가 직접 문자로 연락)·중복 참여 확인</li>
+              <li>② 인터뷰 연락: 휴대전화 번호, 설문 응답 — 30분 온라인 인터뷰 일정 연락(전화·문자)</li>
+            </ul>
+          </li>
         </ul>
         {/* 개인정보 보호법 제22조③: 동의 없이 처리하는 항목과 그 법적 근거를 동의받아 처리하는 항목과 구분해 공개한다. 적용할 호는 법률 검토로 확정한다 */}
         <p>
@@ -106,6 +118,10 @@ export default function PrivacyPage() {
             기록을 잃지 않도록 데이터베이스를 암호화해 백업합니다. 백업 파일은 운영자가 관리하는 저장장치(클라우드 동기화 폴더 제외)에 최대 30일 보관한 뒤
             지우므로, 탈퇴·파기한 정보도 30일 안에 백업에서 지워집니다. 백업으로 복구하는 경우에는 그 사이의 탈퇴·파기 처리를 다시 적용합니다. 이를 위해
             탈퇴 처리한 등록의 프로필 주소와 처리일만 백업과 따로 적어 두었다가(탈퇴 기록) 30일이 지나면 지웁니다.
+          </li>
+          <li>
+            대학생 서면 인터뷰 설문(1항)에 남긴 휴대전화 번호는 고른 목적별 기간이 끝나면 지웁니다. ① 경품은 전달을 마치면 바로(늦어도 2026년 12월 31일), ②
+            인터뷰 연락은 인터뷰를 마치거나 하지 않기로 정해진 날(늦어도 2026년 12월 31일)입니다. 번호를 지운 뒤 설문 응답은 번호 없이 익명으로만 남깁니다.
           </li>
           <li>전자 파일은 복구할 수 없는 방법으로 지웁니다.</li>
         </ul>
@@ -165,6 +181,16 @@ export default function PrivacyPage() {
           {mail &&
             !mail.domestic &&
             " 6항 연락처로 보내는 문의·요청 메일도 운영 메일 업체를 거쳐 국외에 보관되므로, 원하지 않으면 메일을 보내지 않을 수 있으며 이 경우 메일로 답변을 받을 수 없습니다."}
+        </p>
+        {/* 설문 보관: MAIL_SERVICE와 상관없는 고정 문구(메일 업체가 바뀌어도 설문 보관처는 그대로). 근거가 위 업체들의 제3호 가목이 아니라 설문에서 받은
+            별도 동의(제28조의8 ①1)라 위 '이전 근거' 문단 뒤에 따로 적고 transferCountries에 넣지 않는다.
+            '운영 메일'이라는 말은 쓰지 않는다(smoke 점검과 테스트가 그 말로 운영 메일 업체 항목을 찾는다) */}
+        <p>
+          <strong>대학생 서면 인터뷰 설문(1항):</strong> 응답은 Google LLC(미국, googlekrsupport@google.com)의 Google 설문지로 받아 보관하며, 설문지에 연결한 Google 스프레드시트에도 같은 응답이 저장됩니다. 이전 항목:
+          휴대전화 번호, 번호와 함께 제출한 설문 응답 / 이전 국가: 미국 등 Google 데이터센터가 있는 국가 / 시기·방법: 설문을 제출할 때 암호화된
+          연결(HTTPS)로 전송 / 보유·이용 기간: 2항의 설문 보유 기간과 같음 / 이전 근거: 위 업체들의 이전(제3호 가목)과 달리 개인정보 보호법 제28조의8 제1항 제1호(설문에서 따로 받은 국외 이전
+          동의). 이전을 원하지 않으면 번호를 남기지 않고 익명으로 제출하거나, 번호를 남긴 뒤 6항 연락처로 삭제를 요청할 수 있으며, 이 경우 경품·인터뷰 연락을
+          받을 수 없습니다.
         </p>
         <p className="text-sm text-muted-foreground">
           검증 화면은 공개 앵커 저장소(GitHub)의 공개키·앵커 파일을 방문자의 브라우저가 직접 받아 대조합니다. 이때 GitHub, Inc.(미국)가 방문자의 IP 주소 등
