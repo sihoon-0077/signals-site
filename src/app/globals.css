@@ -2,13 +2,15 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* 다크 단일 테마: :root 값이 곧 다크. .dark 클래스는 쓰지 않아 ui/*의 dark: 변형은 꺼진 채로 둔다.
+   이 줄을 지우면 Tailwind 기본 dark(prefers-color-scheme)가 살아나 OS 설정마다 화면이 달라진다. */
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+  --font-mono: var(--font-jetbrains-mono), "Pretendard Variable", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -39,103 +41,202 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
+  --color-inset: var(--inset);
+  --color-raised: var(--raised);
+  --color-selected: var(--selected);
+  --color-line-subtle: var(--line-subtle);
+  --color-line-strong: var(--line-strong);
+  --color-lead: var(--text-lead);
+  --color-tertiary: var(--text-tertiary);
+  --color-disabled: var(--text-disabled);
+  --color-link: var(--link);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-pressed: var(--primary-pressed);
+  --color-primary-subtle: var(--primary-subtle);
+  --color-status-pass: var(--status-pass);
+  --color-status-fail: var(--status-fail);
+  --color-status-pending: var(--status-pending);
+  --color-status-skip: var(--status-skip);
+  --color-mkt-up: var(--mkt-up);
+  --color-mkt-down: var(--mkt-down);
+  /* radius scale on --radius 8px: sm 4 · md 6 · lg 8 · xl 12 · 2xl 16 · 3xl 20 · 4xl 24 (existing names only) */
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-xl: calc(var(--radius) * 1.5);
+  --radius-2xl: calc(var(--radius) * 2);
+  --radius-3xl: calc(var(--radius) * 2.5);
+  --radius-4xl: calc(var(--radius) * 3);
+  /* Hangul body line-height (Tailwind default 1.625). Every existing leading-relaxed paragraph moves with it. */
+  --leading-relaxed: 1.7;
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  color-scheme: dark;
+  --radius: 0.5rem;
+  /* surfaces: canvas → card → raised → popover; inset = one step below the canvas (wells, inputs) */
+  --background: #08090a;
+  --inset: #050506;
+  --card: #0f1011;
+  --raised: #141516;
+  --popover: #191a1b;
+  --secondary: rgb(255 255 255 / 0.05);
+  --muted: rgb(255 255 255 / 0.05);   /* hover fill, current nav item */
+  --accent: rgb(255 255 255 / 0.05);
+  --selected: #1c1c1f;
+  /* lines: translucent white so they read the same on every surface. gap-px grids that paint lines with bg-border need bg-clip-padding */
+  --line-subtle: rgb(255 255 255 / 0.05);
+  --border: rgb(255 255 255 / 0.08);
+  --line-strong: rgb(255 255 255 / 0.12);
+  --input: #686b72;                    /* control boundary 3.82 (inset) / 3.73 (canvas) / 3.57 (card) : 1 — WCAG 1.4.11 */
+  /* text ladder (contrast on canvas / card) */
+  --foreground: #f7f8f8;               /* 18.73 / 17.90 */
+  --card-foreground: #f7f8f8;
+  --popover-foreground: #f7f8f8;
+  --secondary-foreground: #f7f8f8;
+  --accent-foreground: #f7f8f8;
+  --text-lead: #d0d6e0;                /* 13.64 / 13.04 — values, code, lead chips. Not in @theme (--text-* = font-size namespace) */
+  --muted-foreground: #b4bcd0;         /* 10.48 / 10.02 — body, legal notices */
+  --text-tertiary: #8a8f98;            /*  6.13 / 5.86  — short meta, labels, placeholders */
+  --text-disabled: #62666d;            /*  3.45 / 3.30  — disabled and decorative only */
+  /* accent (hue unchanged from v1) */
+  --primary: #5a61d8;                  /* fill only; white text 5.08:1. Never a text color (3.93:1) */
+  --primary-foreground: #ffffff;
+  --primary-hover: #6168e2;            /* white 4.58:1 */
+  --primary-pressed: #4f56c9;          /* white 5.99:1 */
+  --primary-subtle: #18182f;           /* small tinted chips; link text on it 7.99:1 */
+  --link: #a3a9ff;                     /* 9.18 canvas / 8.78 card */
+  --ring: #a3a9ff;
+  /* status (unchanged) — pill = 14% fill + 40% border + icon + label */
+  --destructive: #f26b5e;
+  --status-pass: #4cd3a0;
+  --status-fail: #f26b5e;
+  --status-pending: #e3b24f;
+  --status-skip: #8b939e;
+  --mkt-up: #f25f66;                   /* defined, NOT used (LONG/SHORT stay neutral) */
+  --mkt-down: #4e9bff;
+  --chart-1: #5a61d8; --chart-2: #4cd3a0; --chart-3: #e3b24f; --chart-4: #8b939e; --chart-5: #a3a9ff;
+  --sidebar: #0f1011; --sidebar-foreground: #f7f8f8; --sidebar-primary: #5a61d8; --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgb(255 255 255 / 0.05); --sidebar-accent-foreground: #f7f8f8; --sidebar-border: rgb(255 255 255 / 0.05); --sidebar-ring: #a3a9ff;
+  /* elevation (lift = top-edge highlight + outer 1px black ring) */
+  --shadow-lift: inset 0 0 0 1px rgb(255 255 255 / 0.03), inset 0 1px 0 rgb(255 255 255 / 0.04), 0 0 0 1px rgb(0 0 0 / 0.6), 0 4px 4px rgb(0 0 0 / 0.1);
+  --shadow-float: var(--shadow-lift), 0 16px 48px -12px rgb(0 0 0 / 0.6);
+  --shadow-button: inset 0 1px 0 rgb(255 255 255 / 0.16), 0 0 0 1px rgb(0 0 0 / 0.4), 0 1px 2px rgb(0 0 0 / 0.4);
+  /* motion */
+  --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+@media print {
+  :root {
+    color-scheme: light;
+    --background: #fff; --inset: #fff; --card: #fff; --raised: #fff; --popover: #fff; --muted: #fff; --secondary: #fff; --accent: #fff;
+    --foreground: #111; --card-foreground: #111; --text-lead: #222; --muted-foreground: #333; --text-tertiary: #444;
+    --border: #bbb; --line-subtle: #ccc; --line-strong: #999; --input: #888; --link: #1f3a99; --primary-subtle: #eee;
+  }
+  .elev-lift, .elev-float, .elev-button { box-shadow: none !important; }
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+  * { @apply border-border outline-ring; }
+  html { @apply bg-background font-sans; scroll-padding-top: 5rem; font-synthesis: none; }
+  body { @apply bg-background text-foreground; }
+  :lang(ko) { word-break: keep-all; overflow-wrap: break-word; }
+  h1, h2, h3 { text-wrap: balance; }
+  p, li, dd { text-wrap: pretty; }
+  :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+  ::selection { background-color: rgb(90 97 216 / 0.36); color: var(--foreground); }
+  table, time, code, kbd, samp, pre { font-variant-numeric: tabular-nums; }
+  /* Tailwind v4 preflight leaves buttons on the default arrow cursor */
+  button:not(:disabled), [role="button"]:not([aria-disabled="true"]), summary { cursor: pointer; }
+}
+
+/* ---------- SIGNALS surface classes (plain classes on purpose: cn() passes unknown classes through untouched) ---------- */
+.elev-lift { box-shadow: var(--shadow-lift); }
+.elev-float { box-shadow: var(--shadow-float); }
+.elev-button { box-shadow: var(--shadow-button); }
+
+/* Home h1 only: white (solid to 45%) → 70% white. The faded end over the canvas is #afb0b1 (9.17:1): the last line
+   ("AI 시그널 기록", the product noun) must not be the faintest words of the headline. Text stays solid where clip is
+   unsupported, in forced-colors mode and in print. */
+.headline-gradient { color: var(--foreground); }
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .headline-gradient {
+    background-image: linear-gradient(to bottom right, var(--foreground) 45%, rgb(247 248 248 / 0.7));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
-  body {
-    @apply bg-background text-foreground;
+  .headline-gradient ::selection, .headline-gradient::selection { -webkit-text-fill-color: var(--foreground); }
+}
+@media (forced-colors: active) {
+  .headline-gradient { background-image: none; -webkit-text-fill-color: CanvasText; }
+}
+@media print {
+  .headline-gradient { background-image: none; -webkit-text-fill-color: currentColor; }
+}
+
+/* The only glow on the site: behind the home receipt card. Static, max alpha 0.14. */
+.hero-glow { background-image: radial-gradient(closest-side, rgb(90 97 216 / 0.14), rgb(90 97 216 / 0.05) 55%, transparent); }
+
+/* ---------- effects (SealMark · HashSettle hold · Reveal) ----------
+   SealMark/Reveal keyframes adapted from React Bits StatusMark and FadeContent (MIT + Commons Clause, (c) 2026 David Haz;
+   full text in THIRD_PARTY_NOTICES.md). The final state is always the default style; motion only plays *into* it and only
+   under prefers-reduced-motion: no-preference. */
+/* No `color` here: this rule is unlayered, so a color set here would beat the text-* utility (@layer utilities) that gives
+   the mark its colour (text-link on home). Without a class the mark simply inherits the text colour. */
+.seal-mark { overflow: visible; }
+.seal-mark__ring,
+.seal-mark__check {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1 2; /* pathLength=1 → one full-length dash, then a longer gap (no stray round-cap dot when hidden) */
+  stroke-dashoffset: 0; /* final state: fully drawn */
+}
+@keyframes seal-draw { from { stroke-dashoffset: 1.05; } }
+@keyframes settle-fallback { to { opacity: 1; } }
+@keyframes reveal-in { from { opacity: 0; transform: translateY(12px); } }
+
+@media (prefers-reduced-motion: no-preference) {
+  .seal-mark__ring { animation: seal-draw 400ms var(--ease-out-quart) var(--seal-delay, 0ms) both; }
+  .seal-mark__check { animation: seal-draw 240ms var(--ease-out-quart) calc(var(--seal-delay, 0ms) + 280ms) both; }
+
+  /* HashSettle hold: invisible until JS starts the settle (it removes the attribute). Without JS, CSS shows the value by itself
+     after 1.2 s (JS skips the effect after 1.0 s, so they never fight). Under reduced motion this rule does not exist. */
+  [data-settle="hold"] { opacity: 0; animation: settle-fallback 1ms linear 1200ms forwards; }
+
+  /* time-based entrance, home hero sequence only (delay = --i × 40ms + --reveal-delay) */
+  .reveal-mount {
+    animation: reveal-in 560ms var(--ease-out-expo) both;
+    animation-delay: calc(var(--i, 0) * 40ms + var(--reveal-delay, 0ms));
   }
-  html {
-    @apply font-sans;
+
+  /* scroll-driven entrance, home CTA only (browsers without view() simply show the content) */
+  @supports (animation-timeline: view()) {
+    .reveal-scroll {
+      animation: reveal-in linear both;
+      animation-timeline: view();
+      animation-range: entry 10% entry 50%;
+    }
   }
 }
-/* SIGNALS 테마: 주색 1(남색) + 회색조. 초보 티는 여백 부족과 색 남발에서 나온다. */
-:root {
-  --primary: oklch(0.43 0.13 262);
-  --primary-foreground: oklch(0.985 0 0);
-  --ring: oklch(0.43 0.13 262);
+
+@media print {
+  .reveal-mount, .reveal-scroll, .seal-mark__ring, .seal-mark__check, [data-settle] { animation: none !important; opacity: 1 !important; }
 }
-.dark {
-  --primary: oklch(0.74 0.11 262);
-  --primary-foreground: oklch(0.16 0 0);
-  --ring: oklch(0.74 0.11 262);
+
+/* ---------- global reduced-motion safety net (third-party animations, transitions) ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-delay: 0s !important;
+    animation-duration: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-delay: 0s !important;
+    transition-duration: 0s !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { TYPE } from "@/components/typography";
 import { parseMailService } from "@/lib/mail-service";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "개인정보 처리방침" };
 export const dynamic = "force-dynamic";
@@ -26,15 +28,20 @@ export default function PrivacyPage() {
   const transferCountries =
     mail && !mail.domestic && !PROCESSOR_COUNTRIES.includes(mail.country) ? [...PROCESSOR_COUNTRIES, mail.country] : PROCESSOR_COUNTRIES;
   return (
-    <article className="mx-auto max-w-3xl space-y-8 leading-relaxed">
-      <h1 className="text-2xl font-bold sm:text-3xl">개인정보 처리방침</h1>
+    // <li>·<p>·<strong>에는 클래스를 달지 않는다(privacy-page 테스트가 클래스 없는 맨 태그로 법정 문구를 찾는다). 모양은 article의 하위 선택자로만 준다:
+    // 본문은 한 단 낮은 글자색, 제목과 굵은 글씨(법정 강조 항목)는 본문색으로 더 눈에 띄게, 항 사이에는 얇은 선.
+    // 글 폭 680px(한 줄 약 40음절), 본문 16px / 행간 1.75. <strong>은 브라우저 기본 굵기(700)를 그대로 둔다(법이 요구하는 '눈에 띄는 표시').
+    // 틀은 다른 읽기 화면과 같은 768px(max-w-3xl)이라 헤더 메뉴로 오갈 때 제목 왼쪽 끝이 같고, 바로 아래 자식([&>*])만 680px로 줄여 왼쪽에 붙인다.
+    // h1의 mb-4가 space-y-10(:where()라 우선순위 0)을 이겨 제목과 첫 문단을 16px로 묶는다. 빼면 40px로 벌어져 제목만 떠 보인다.
+    <article className="mx-auto max-w-3xl space-y-10 text-base leading-[1.75] text-muted-foreground [&_section]:border-t [&_section]:border-line-subtle [&_section]:pt-10 [&_strong]:text-foreground [&_ul]:marker:text-tertiary [&>*]:max-w-[42.5rem]">
+      <h1 className={cn(TYPE.title, "mb-4")}>개인정보 처리방침</h1>
       <p className="text-muted-foreground">
         SIGNALS(이하 &apos;운영자&apos;)는 공급자 사전등록, 기록 공개와 문의 답변에 필요한 최소한의 개인정보만 처리합니다. 대학생 서면 인터뷰
         설문(1항)에서 휴대전화 번호를 남긴 분의 정보도 고른 목적(경품·인터뷰 연락)에 필요한 만큼만 처리합니다.
       </p>
 
       <section className="space-y-2">
-        <h2 className="text-lg font-bold">1. 처리하는 항목과 목적</h2>
+        <h2 className={TYPE.block}>1. 처리하는 항목과 목적</h2>
         <ul className="list-disc space-y-2 pl-5">
           <li>
             필수(공급자 사전등록)
@@ -93,7 +100,7 @@ export default function PrivacyPage() {
       </section>
 
       <section className="space-y-2">
-        <h2 className="text-lg font-bold">2. 보유 기간과 파기</h2>
+        <h2 className={TYPE.block}>2. 보유 기간과 파기</h2>
         <ul className="list-disc space-y-1 pl-5">
           {/* repo/providers.ts purgeStaleRegistrations: 1년 파기는 승인된 적 없는(approved_at 없음) 행만 대상이다. 승인된 적 있는 행은 거절된 뒤에도 탈퇴할 때까지 남는다 */}
           <li>사전등록 정보는 탈퇴를 요청할 때까지 보유합니다. 한 번도 승인되지 않은 사전등록은 등록일부터 1년이 지나면 탈퇴와 같은 방식으로 처리합니다.</li>
@@ -128,7 +135,7 @@ export default function PrivacyPage() {
       </section>
 
       <section className="space-y-2">
-        <h2 className="text-lg font-bold">3. 제3자 제공, 처리 위탁과 국외 이전</h2>
+        <h2 className={TYPE.block}>3. 제3자 제공, 처리 위탁과 국외 이전</h2>
         <p>
           개인정보를 제3자에게 제공하지 않습니다. 서비스 운영을 위해 아래 업체에 처리를 맡기며, 해외 업체에 맡기는 처리에서는 개인정보가 국외로 이전(해외에서
           조회되는 경우 포함)됩니다.
@@ -203,7 +210,7 @@ export default function PrivacyPage() {
       </section>
 
       <section className="space-y-2">
-        <h2 className="text-lg font-bold">4. 정보주체의 권리</h2>
+        <h2 className={TYPE.block}>4. 정보주체의 권리</h2>
         <p>
           언제든지 개인정보 열람·정정·삭제·처리정지와 동의 철회를 요구할 수 있으며, 선택 동의(인터뷰·소식 메일)만 따로 철회할 수도 있습니다. 6항 연락처로
           이메일을 보내면 지체 없이 처리합니다. 링크 코드 쿠키(ref)와 브라우저 저장값은 브라우저 설정에서 지우거나 막을 수 있으며, 막아도 이용에는 지장이
@@ -212,7 +219,7 @@ export default function PrivacyPage() {
       </section>
 
       <section className="space-y-2">
-        <h2 className="text-lg font-bold">5. 안전성 확보 조치</h2>
+        <h2 className={TYPE.block}>5. 안전성 확보 조치</h2>
         <p>
           전송 구간 암호화(HTTPS·DB 연결 TLS), 백업 파일 암호화, 관리자 화면 접근 통제, 데이터베이스 행 수준 보안(외부 API 접근 차단), 최소 수집을
           적용합니다.
@@ -220,14 +227,14 @@ export default function PrivacyPage() {
       </section>
 
       <section className="space-y-2">
-        <h2 className="text-lg font-bold">6. 개인정보 보호책임자</h2>
+        <h2 className={TYPE.block}>6. 개인정보 보호책임자</h2>
         <p>
           {officer} · {contact}
         </p>
       </section>
 
       <section className="space-y-2">
-        <h2 className="text-lg font-bold">7. 권익침해 구제방법</h2>
+        <h2 className={TYPE.block}>7. 권익침해 구제방법</h2>
         <p>개인정보 침해에 대한 상담이나 피해 구제가 필요하면 아래 기관에 문의할 수 있습니다.</p>
         <ul className="list-disc space-y-1 pl-5">
           <li>개인정보 분쟁조정위원회: 1833-6972 (www.kopico.go.kr)</li>
@@ -238,7 +245,7 @@ export default function PrivacyPage() {
       </section>
 
       <section className="space-y-2">
-        <h2 className="text-lg font-bold">8. 처리방침의 변경</h2>
+        <h2 className={TYPE.block}>8. 처리방침의 변경</h2>
         <p>
           이 처리방침은 {EFFECTIVE_DATE}부터 적용됩니다. 내용을 바꿀 때는 바뀌는 내용(바뀌기 전과 후)과 시행일을 시행 7일 전부터 이 페이지와 사이트 공지로
           알리고, 수집 항목·이용 목적·처리 위탁과 국외 이전처럼 정보주체의 권리에 중요한 변경은 30일 전부터 알립니다. 바뀐 뒤에도 이전 처리방침을 이 페이지에서

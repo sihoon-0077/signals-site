@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { Panel } from "@/components/panel";
+import { TYPE } from "@/components/typography";
+import { cn } from "@/lib/utils";
 import { siteUrl } from "@/server/config";
 import { JoinForm } from "./join-form";
 
@@ -20,37 +23,46 @@ const TERMS = [
 export default async function JoinPage({ searchParams }: { searchParams: Promise<{ ref?: string }> }) {
   const { ref } = await searchParams;
   return (
-    <div className="mx-auto max-w-2xl space-y-10">
-      <div className="space-y-4">
-        <h1 className="text-2xl font-bold sm:text-3xl">공급자 무료 사전등록</h1>
+    // 읽기 화면의 틀은 검증·앵커와 같은 768px(max-w-3xl)이다: 헤더 메뉴로 오갈 때 제목의 왼쪽 끝이 옆으로 튀지 않는다.
+    // 글 문단만 672px(max-w-2xl)로 줄 길이를 지킨다.
+    <div className="mx-auto max-w-3xl space-y-12">
+      <div className="space-y-5">
+        <h1 className={TYPE.title}>공급자 무료 사전등록</h1>
         {/* 사이트에는 시그널을 받는 기능이 없고 봉인은 운영자가 /admin에서 발행할 때 일어난다(services/publish.ts). 기록 시각과 진입 기준은
             그 봉인 시각으로 정해지므로, 보낸 시각이 기준인 것처럼 읽히는 '받는 즉시' 같은 약속을 쓰지 않는다. */}
-        <p className="leading-relaxed text-muted-foreground">
+        <p className={cn(TYPE.body, "max-w-2xl")}>
           규칙·코드·AI로 국내 주식 시그널을 꾸준히 만들고 있다면 등록해 주세요. 승인되면 공개 프로필과 공유·초대 링크가 생깁니다. 보내 주신 시그널은 운영자가
           받아 봉인한 때부터 결과 전 기록이 됩니다. 기록 시각은 보내신 시각이 아니라 봉인 시각이며, 봉인은 운영자가 직접 하므로 보내신 때보다 늦어질 수
           있습니다. 나중에 성과를 계산할 때 쓰는 진입 기준도 봉인 뒤 받은 외부 타임스탬프 시각 이후의 가격으로 정합니다(수익률은 아직 표시하지 않습니다).
         </p>
       </div>
 
-      <section className="space-y-3">
-        <h2 className="font-bold">등록 조건</h2>
-        <ul className="list-disc space-y-1 pl-5 text-sm leading-relaxed text-muted-foreground">
-          {CONDITIONS.map((c) => (
-            <li key={c}>{c}</li>
-          ))}
-        </ul>
-      </section>
+      {/* 등록 조건과 공개 조건은 카드 하나를 5% 선으로 나눈 두 칸(상자 속 상자를 만들지 않음), 폼은 그 아래 따로 둔다. 순서는 그대로: 폼보다 먼저 읽힌다 */}
+      <div className="divide-y divide-line-subtle overflow-hidden rounded-xl border bg-card">
+        <section className="space-y-3 p-5 sm:p-6">
+          <h2 className={TYPE.card}>등록 조건</h2>
+          <ul className="list-disc space-y-1.5 pl-5 text-[0.9375rem] leading-[1.7] text-muted-foreground marker:text-tertiary">
+            {CONDITIONS.map((c) => (
+              <li key={c}>{c}</li>
+            ))}
+          </ul>
+        </section>
 
-      <section className="space-y-3 rounded-xl border p-5">
-        <h2 className="font-bold">등록 전에 확인해 주세요</h2>
-        <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-muted-foreground">
-          {TERMS.map((t) => (
-            <li key={t}>{t}</li>
-          ))}
-        </ul>
-      </section>
+        <section className="space-y-3 p-5 sm:p-6">
+          <h2 className={TYPE.card}>등록 전에 확인해 주세요</h2>
+          <ul className="list-disc space-y-2 pl-5 text-[0.9375rem] leading-[1.7] text-muted-foreground marker:text-tertiary">
+            {TERMS.map((t) => (
+              <li key={t}>{t}</li>
+            ))}
+          </ul>
+        </section>
+      </div>
 
-      <JoinForm referralCode={ref && /^[a-z0-9]{6,16}$/.test(ref) ? ref : undefined} profileHost={new URL(siteUrl()).host} />
+      {/* 폼 카드는 sm 이상에서만 카드다(안쪽 여백 32px). 휴대폰(sm 미만)에서는 테두리·면·여백을 지워 폼을 캔버스에 바로 둔다:
+          페이지 여백 20 + 카드 20 + 동의 우물 16 + 체크박스 칸 28px가 겹치면 390px에서 동의 문구 폭이 약 250px로 줄어 한 항목이 40줄 가까이 된다 */}
+      <Panel pad="none" className="p-5 sm:p-8 max-sm:border-0 max-sm:bg-transparent max-sm:p-0">
+        <JoinForm referralCode={ref && /^[a-z0-9]{6,16}$/.test(ref) ? ref : undefined} profileHost={new URL(siteUrl()).host} />
+      </Panel>
     </div>
   );
 }

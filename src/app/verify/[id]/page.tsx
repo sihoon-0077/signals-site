@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { TYPE } from "@/components/typography";
 import { isSignalKey } from "@/core/verify";
 import { anchorRepo } from "@/server/config";
 import { VerifyRunner } from "./verify-runner";
@@ -15,16 +16,17 @@ export default async function VerifySignalPage({ params }: { params: Promise<{ i
   const { url: mirrorRepo, branch: mirrorBranch } = anchorRepo();
   return (
     <div className="mx-auto max-w-3xl space-y-10">
-      <div className="space-y-3">
-        <Link href="/verify" className="text-sm text-muted-foreground hover:text-foreground">
+      <div className="space-y-5">
+        {/* inline-block: space-y는 아래 여백(margin-block-end)을 주는데, 그냥 inline인 링크에는 세로 여백이 먹지 않아 제목과 붙는다 */}
+        <Link href="/verify" className="inline-block text-sm font-medium text-tertiary transition-colors duration-100 hover:text-foreground">
           ← 검증 방법
         </Link>
         {/* 계획서가 정한 이 기록의 공개 이름은 '사전등록 기록'이다(결과 전에 등록·봉인한 기록. 09 §2: 검증 화면에 이 표기). */}
-        <h1 className="text-2xl font-bold sm:text-3xl">이 사전등록 기록을 직접 검증합니다</h1>
-        <p className="leading-relaxed text-muted-foreground">
+        <h1 className={TYPE.title}>이 사전등록 기록을 직접 검증합니다</h1>
+        <p className={TYPE.body}>
           서버는 공개 자료만 보내고, 계산은 지금 이 브라우저가 합니다. 서명에 쓴 공개키와 앵커는{" "}
           {mirrorRepo ? (
-            <a href={mirrorRepo} className="text-primary underline-offset-4 hover:underline" target="_blank" rel="noopener noreferrer">
+            <a href={mirrorRepo} className="text-link underline underline-offset-4 transition-colors hover:text-foreground" target="_blank" rel="noopener noreferrer">
               공개 저장소
             </a>
           ) : (

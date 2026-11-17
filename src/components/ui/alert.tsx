@@ -8,8 +8,9 @@ const alertVariants = cva(
     variants: {
       variant: {
         default: "bg-card text-card-foreground",
+        // 상태 색(불일치)과 같은 계열: 옅은 배경 + 40% 테두리. 설명 글도 같은 색으로 둬서 배경 위 대비를 4.5:1 이상으로 지킨다
         destructive:
-          "bg-card text-destructive *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current",
+          "border-status-fail/40 bg-status-fail/10 text-status-fail *:data-[slot=alert-description]:text-status-fail *:[svg]:text-current",
       },
     },
     defaultVariants: {

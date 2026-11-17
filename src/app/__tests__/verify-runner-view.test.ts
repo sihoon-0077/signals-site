@@ -91,7 +91,7 @@ describe("규칙에 맞지 않는 공개 자료도 결과 화면으로 그린다
 
   it("정상 원문은 정규 직렬화 문자열을 보여 준다", () => {
     const html = draw(revealed(fields), [row("hash", "PASS")]);
-    expect(html).toContain(`<pre class="overflow-x-auto rounded-lg bg-muted/60 p-3 text-xs whitespace-pre-wrap break-all">v2|${fields.signalId}|`);
+    expect(html).toMatch(new RegExp(`<pre class="[^"]*\\bwhitespace-pre-wrap\\b[^"]*\\bbreak-all\\b[^"]*">v2\\|${fields.signalId}\\|`));
     expect(html).not.toContain(FALLBACK);
   });
 

@@ -9,7 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { ACTIVE_MIN_DAYS, ACTIVE_MIN_SIGNALS, ENTRY_MARKETS } from "@/lib/agent-rules";
 import { type ActionState, agentStatusAction, anchorAction, createAgentAction, publishAction, signalEventAction } from "./actions";
 
-const selectClass = "h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
+// 네이티브 select를 Input(ui/input.tsx)과 같은 면(inset)·테두리(input)·높이·글자 크기로 맞춘다: 휴대폰 44px·16px → sm 이상 40px, md 이상 14px.
+// Input만 키가 커지면 같은 줄의 select가 4~8px 낮아져 칸 위끝(라벨)이 어긋난다. 포커스는 globals.css의 :focus-visible 테두리로 보인다(outline-none·ring 금지).
+const selectClass = "h-11 w-full rounded-lg border border-input bg-inset px-3 text-base text-foreground sm:h-10 md:text-sm";
 
 type Action = (prev: ActionState, form: FormData) => Promise<ActionState>;
 
@@ -51,17 +53,18 @@ const publish = guardAction(publishWithRequestId, PUBLISH_LOST_NOTICE);
 const anchor = guardAction(anchorAction);
 
 function Result({ state }: { state: ActionState }) {
-  if (state.error) return <p className="text-sm text-destructive">{state.error}{state.fields ? ` (${Object.entries(state.fields).map(([k, v]) => `${k}: ${v}`).join(", ")})` : ""}</p>;
-  if (state.ok) return <p className="text-sm break-all text-primary">{state.ok}</p>;
+  if (state.error) return <p className="text-sm text-status-fail">{state.error}{state.fields ? ` (${Object.entries(state.fields).map(([k, v]) => `${k}: ${v}`).join(", ")})` : ""}</p>;
+  if (state.ok) return <p className="text-sm break-all text-status-pass">{state.ok}</p>;
   return null;
 }
 
 // 레이블을 입력칸에 htmlFor/id로 연결한다(화면낭독기가 칸 이름을 읽도록)
+// Label 기본값 leading-none은 두 줄로 넘어가는 긴 이름(최대 보유 거래일…)의 줄이 붙어 보여 leading-snug로 푼다.
 function F({ label, children }: { label: string; children: React.ReactElement<Record<string, unknown>> }) {
   const id = useId();
   return (
     <div className="space-y-1.5">
-      <Label htmlFor={id}>{label}</Label>
+      <Label htmlFor={id} className="leading-snug">{label}</Label>
       {isValidElement(children) ? cloneElement(children, { id }) : children}
     </div>
   );
@@ -109,7 +112,8 @@ export function SignalEventForm({ signalId }: { signalId: string }) {
   return (
     <form action={action} className="flex flex-wrap items-center justify-end gap-2">
       <input type="hidden" name="signalId" value={signalId} />
-      <Input name="note" aria-label="사유(무효·만료는 필수)" placeholder="사유(무효·만료는 필수)" className="h-8 w-48" maxLength={200} />
+      {/* 줄 안의 작은 칸(32px, 옆 버튼 28px). Input의 sm:h-10은 h-8로 지워지지 않아(cn은 화면 폭 조건이 붙은 클래스를 따로 합친다) sm:h-8도 적는다 */}
+      <Input name="note" aria-label="사유(무효·만료는 필수)" placeholder="사유(무효·만료는 필수)" className="h-8 w-48 sm:h-8" maxLength={200} />
       <ConfirmSubmit name="event" value="CLOSED" label="청산" confirmLabel="청산 확인" />
       <ConfirmSubmit name="event" value="EXPIRED" label="만료" confirmLabel="만료 확인" />
       <ConfirmSubmit name="event" value="VOID" label="무효" confirmLabel="무효 확인(발행 10분 안만)" />
@@ -122,7 +126,7 @@ export function CreateAgentForm({ providers }: { providers: { id: string; handle
   const [state, action, pending] = useActionState<ActionState, FormData>(createAgent, {});
   const v = state.values ?? {};
   return (
-    <form key={state.attempt ?? 0} action={action} className="grid gap-4 sm:grid-cols-2">
+    <form key={state.attempt ?? 0} action={action} className="grid grid-cols-1 gap-4 rounded-xl border bg-card p-5 sm:grid-cols-2 sm:p-6">
       <F label="소유">
         <select name="providerId" className={selectClass} defaultValue={v.providerId ?? "platform"}>
           <option value="platform">플랫폼 운영(자체 에이전트)</option>
@@ -142,7 +146,7 @@ export function CreateAgentForm({ providers }: { providers: { id: string; handle
       <F label="설명">
         <Input name="description" placeholder="20일선 돌파 + 거래량 조건" defaultValue={v.description} />
       </F>
-      <div className="space-y-2 sm:col-span-2">
+      <div className="space-y-2 border-t border-line-subtle pt-4 sm:col-span-2">
         <Button type="submit" disabled={pending}>
           에이전트 만들기
         </Button>
@@ -156,7 +160,8 @@ export function PublishForm({ agents }: { agents: { id: string; name: string; st
   const [state, action, pending] = useActionState<ActionState, FormData>(publish, {});
   const v = state.values ?? {};
   return (
-    <form key={state.attempt ?? 0} action={action} className="grid gap-4 sm:grid-cols-3">
+    // items-end: 이름이 두 줄로 넘어가는 칸이 있어도 같은 줄의 입력칸 아래끝이 맞는다
+    <form key={state.attempt ?? 0} action={action} className="grid grid-cols-1 items-end gap-4 rounded-xl border bg-card p-5 sm:grid-cols-3 sm:p-6">
       {/* 실패해 다시 그린 폼은 같은 요청 번호를 가진다. 새로고침하면 사라지므로, 결과를 모를 때는 이 화면에서 다시 누른다. */}
       <input type="hidden" name="requestId" value={v.requestId ?? ""} />
       <F label="에이전트">
@@ -222,17 +227,17 @@ export function PublishForm({ agents }: { agents: { id: string; name: string; st
           값(ackFor)은 그때 보여 준 에이전트·문구·걸린 표기에 묶여, 체크한 뒤 에이전트나 걸린 칸의 문구를 바꾸면 서버가 다시 묻는다.
           다른 오류로 돌아오면 사라진다. 연락처(메일·링크·메신저 아이디·휴대전화 번호)는 확인해도 거부된다 */}
       {state.ackFor && (
-        <label className="flex items-start gap-3 text-sm leading-relaxed sm:col-span-3">
+        <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-line-strong bg-inset px-4 py-3 text-sm leading-relaxed sm:col-span-3">
           <input type="checkbox" name="identityAck" value={state.ackFor} className="mt-1 size-4 accent-primary" />
           <span>오류 안내의 &apos;걸린 표기&apos;는 모두 필명·주소와 겹치는 일반 낱말이며 공급자 신원 정보가 아님을 확인했습니다</span>
         </label>
       )}
-      <div className="space-y-2 sm:col-span-3">
+      <div className="space-y-2 border-t border-line-subtle pt-4 sm:col-span-3">
         <Button type="submit" disabled={pending}>
           {pending ? "봉인하는 중…" : "봉인하고 발행"}
         </Button>
-        <p className="text-xs text-muted-foreground">발행하면 고칠 수도 지울 수도 없습니다. 모의(페이퍼) 기록으로 저장됩니다.</p>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs leading-relaxed text-muted-foreground">발행하면 고칠 수도 지울 수도 없습니다. 모의(페이퍼) 기록으로 저장됩니다.</p>
+        <p className="text-xs leading-relaxed text-muted-foreground">
           규칙 버전·근거는 원문과 함께 공개됩니다. 필명·프로필 주소·연락처를 넣지 마세요. 공급자 에이전트는 메일·링크·메신저 아이디·휴대전화 번호를
           거부하고, 필명·프로필 주소와 같은 표기는 확인을 받습니다.
         </p>

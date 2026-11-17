@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { CircleX } from "lucide-react";
+import { keepTerms } from "@/components/keep-terms";
+import { PageHeader } from "@/components/page-header";
+import { TerminalBlock } from "@/components/terminal-block";
+import { TYPE } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import { anchorRepo, siteUrl } from "@/server/config";
 
 export const metadata: Metadata = { title: "검증 방법" };
@@ -42,50 +48,72 @@ export default async function VerifyPage({ searchParams }: { searchParams: Promi
   const repo = anchorRepo();
   const mirrorArgs = repo.url ? ` --mirror ${repo.url}${repo.branch === "main" ? "" : ` --branch ${repo.branch}`}` : "";
   return (
-    <div className="mx-auto max-w-3xl space-y-14">
-      <div className="space-y-4">
-        <h1 className="text-2xl font-bold sm:text-3xl">기록 검증</h1>
-        <p className="leading-relaxed text-muted-foreground">
-          서버의 &quot;맞다&quot;는 답 대신, 이 브라우저가 공개 자료로 아래 7가지를 직접 계산합니다. 공개키와 앵커는 이 사이트가 아니라 공개 저장소에서 따로
-          받아 대조합니다.
-        </p>
-        <form action={go} className="flex gap-2">
-          <Input
-            name="signalId"
-            placeholder="지문(64자리) 또는 시그널 ID·기록 페이지 링크"
-            aria-label="지문 또는 시그널 ID"
-            aria-invalid={e ? true : undefined}
-            aria-describedby={e ? "verify-id-error" : undefined}
-          />
-          <Button type="submit">검증</Button>
-        </form>
-        {e && (
-          <p id="verify-id-error" className="text-sm text-destructive">
-            지문(64자리) 또는 시그널 ID 형식이 아닙니다.
+    <div className="mx-auto max-w-3xl space-y-14 sm:space-y-16">
+      <div className="space-y-8">
+        <PageHeader title="기록 검증">
+          <p>
+            서버의 &quot;맞다&quot;는 답 대신, 이 브라우저가 공개 자료로 아래 7가지를 직접 계산합니다. 공개키와 앵커는 이 사이트가 아니라 공개 저장소에서 따로
+            받아 대조합니다.
           </p>
-        )}
-      </div>
-      <ol className="space-y-6">
-        {CHECKS.map(([t, d], i) => (
-          <li key={t} className="space-y-1">
-            <p className="font-medium">
-              <span className="mr-2 text-primary">0{i + 1}</span>
-              {t}
+        </PageHeader>
+        {/* 검색칸은 상자로 감싸지 않는다: 보이는 라벨 → 입력칸 + 버튼(휴대폰은 위아래, sm 이상 한 줄) → 형식 오류 문장 순서.
+            라벨 글은 입력칸 aria-label과 같은 문장이다(htmlFor로 이어 클릭하면 칸에 포커스가 간다).
+            지문·ID는 글자 폭이 같아야 자리를 맞춰 읽기 쉬우므로 고정폭 글꼴로 받는다. 안내 문구(placeholder)만 본문 글꼴:
+            고정폭이면 한글 사이 빈칸이 넓어져 휴대폰에서 문구가 일찍 잘린다. 높이는 휴대폰 48px · sm 이상 44px(버튼과 같게). */}
+        <form action={go} className="space-y-2.5">
+          <label htmlFor="verify-id" className="block text-sm font-medium text-foreground">지문 또는 시그널 ID</label>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Input
+              id="verify-id"
+              name="signalId"
+              placeholder="지문(64자리) 또는 시그널 ID·기록 페이지 링크"
+              aria-label="지문 또는 시그널 ID"
+              aria-invalid={e ? true : undefined}
+              aria-describedby={e ? "verify-id-error" : undefined}
+              className="h-12 font-mono placeholder:font-sans sm:h-11"
+            />
+            <Button type="submit" size="lg" className="sm:h-11 sm:px-6">검증</Button>
+          </div>
+          {e && (
+            <p id="verify-id-error" className="flex items-start gap-1.5 text-sm text-status-fail">
+              <CircleX aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
+              지문(64자리) 또는 시그널 ID 형식이 아닙니다.
             </p>
-            <p className="leading-relaxed text-muted-foreground">{d}</p>
+          )}
+        </form>
+      </div>
+      {/* 7가지 검사 = 홈 '어떻게 작동하나요'·/anchors와 같은 사슬 레일(상자 없이 세로 1px 선 + 속 빈 인디고 원). 움직이지 않는다(정적).
+          원(9px, 장식이라 화면낭독기에서 숨김)은 왼쪽 선의 가운데(-5px)에 걸치고 번호 줄(20px)의 가운데(top 5px)에 맞춘다.
+          선은 li 테두리가 아니라 ::before로 '이 원 → 다음 원'만 긋는다(마지막 항목 아래로는 선이 없다). 테두리 1px은 투명하게 남겨 글 위치를 그대로 둔다.
+          번호는 강조색이 아니라 고정폭 회색 글자로 둔다(강조색으로 숫자를 칠하지 않는다). */}
+      <ol>
+        {CHECKS.map(([t, d], i) => (
+          <li
+            key={t}
+            className="relative border-l border-transparent pb-8 pl-7 before:absolute before:top-[5px] before:-bottom-[5px] before:-left-px before:w-px before:bg-line-strong last:pb-0 last:before:hidden sm:pl-9"
+          >
+            <span aria-hidden="true" className="absolute top-[5px] -left-[5px] size-[9px] rounded-full border border-link bg-background" />
+            <span className="block font-mono text-xs leading-5 text-tertiary">0{i + 1}</span>
+            <p className={cn(TYPE.card, "mt-1.5")}>{t}</p>
+            <p className="mt-1.5 max-w-[42rem] text-[0.9375rem] leading-[1.7] text-muted-foreground">{keepTerms(d)}</p>
           </li>
         ))}
       </ol>
       {/* 명령줄 검증기는 아직 비공개 저장소에만 있다. 지금 쓸 수 있는 것처럼 보이지 않게 '공개 후'를 제목에 붙인다.
-          지문으로 안내한다: 지문은 서버가 다른 기록을 보내면 바로 드러나지만 ID는 그렇지 않다. */}
-      <div className="space-y-3 rounded-xl bg-muted/60 px-6 py-6 text-sm leading-relaxed">
-        <p className="font-medium">명령줄로 검증하기(검증기 공개 후 사용 가능)</p>
-        <pre className="overflow-x-auto rounded-lg bg-background p-3 text-xs">{`npm run verify -- ${siteUrl()} <지문64자리>${mirrorArgs}`}</pre>
-        <p className="text-foreground/80">
-          명령줄 검증기 코드는 공개 저장소에 함께 올릴 예정이며, 아직 공개 전입니다. 그 전에는 각 기록의 원본 JSON을 받아 두고, OpenTimestamps 증명은 공개
-          저장소의 .ots 파일로 확인합니다.
-        </p>
-      </div>
+          지문으로 안내한다: 지문은 서버가 다른 기록을 보내면 바로 드러나지만 ID는 그렇지 않다.
+          '코드 창' 모양: 카드 머리줄(제목 + 아래 5% 선) + 몸통 안 우물(TerminalBlock). 몸통 여백 20px는 우물의 포커스 테두리가 잘리지 않게 한다.
+          휴대폰(sm 미만)에서는 명령을 줄바꿈해 다 보여 준다: 가로 스크롤 상자는 스크롤된다는 표시가 없어 명령이 잘린 것처럼 보인다.
+          break-words라 빈칸(인자 사이)에서 먼저 줄을 바꾸고, 한 줄보다 긴 주소만 중간에서 끊는다. sm 이상은 그대로 한 줄 + 가로 스크롤. */}
+      <section className="overflow-hidden rounded-xl border bg-card">
+        <p className="border-b border-line-subtle px-5 py-3.5 text-sm font-medium text-foreground sm:px-6">명령줄로 검증하기(검증기 공개 후 사용 가능)</p>
+        <div className="space-y-3 px-5 py-5 text-sm leading-[1.7] sm:px-6">
+          <TerminalBlock className="max-sm:whitespace-pre-wrap max-sm:break-words">{`npm run verify -- ${siteUrl()} <지문64자리>${mirrorArgs}`}</TerminalBlock>
+          <p className="text-muted-foreground">
+            명령줄 검증기 코드는 공개 저장소에 함께 올릴 예정이며, 아직 공개 전입니다. 그 전에는 각 기록의 원본 JSON을 받아 두고, OpenTimestamps 증명은 공개
+            저장소의 .ots 파일로 확인합니다.
+          </p>
+        </div>
+      </section>
     </div>
   );
 }
