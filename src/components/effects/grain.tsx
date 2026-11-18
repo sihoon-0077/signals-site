@@ -6,6 +6,7 @@
  * SIGNALS changes: static only (the original's fps=0 path): one seeded 256x256 tile painted once, no animation loop, no dust/scratches/scanlines/flicker.
  */
 import { useEffect, useRef } from "react";
+import { createTileCache } from "./tile-cache";
 
 const TILE = 256;
 
@@ -44,6 +45,24 @@ const paintTile = (contrast: number) => {
   return canvas;
 };
 
+// One tile per contrast for the whole page. The home page has three grain layers; each used to paint and PNG-encode the
+// same 256×256 noise and keep its own copy (256 KiB of decoded RGBA plus a PNG blob per layer). Layers now share one object URL
+// through tile-cache.ts, which counts users, drops the entry as soon as the last layer leaves (so React StrictMode's dev re-mount
+// gets a fresh tile, never a revoked URL) and revokes the URL once its encode has finished.
+// The promise always settles: null when the canvas, the PNG encode or painting fails (the layer then just stays empty).
+const paintTileUrl = (contrast: number) =>
+  new Promise<string | null>((resolve) => {
+    try {
+      const canvas = paintTile(contrast);
+      if (!canvas) return resolve(null);
+      canvas.toBlob((blob) => resolve(blob ? URL.createObjectURL(blob) : null));
+    } catch {
+      resolve(null); // decoration only: a failure leaves the layer empty instead of an unhandled rejection
+    }
+  });
+
+const tiles = createTileCache(paintTileUrl, (url) => URL.revokeObjectURL(url));
+
 /**
  * Static film grain over its positioned parent (parent needs `relative isolate overflow-hidden`).
  * opacity 0.04–0.06 on #0B0D10 surfaces; size 0.5 → 128 CSS px tile = 1 device px per grain on 2× screens.
@@ -67,15 +86,14 @@ export function Grain({
     const el = ref.current;
     if (!el) return undefined;
     let alive = true;
-    let url = "";
-    paintTile(clamp(contrast, 0, 1))?.toBlob((blob) => {
-      if (!alive || !blob) return;
-      url = URL.createObjectURL(blob);
-      el.style.backgroundImage = `url("${url}")`;
+    const key = clamp(contrast, 0, 1);
+    const tile = tiles.acquire(key);
+    void tile.url.then((url) => {
+      if (alive && url) el.style.backgroundImage = `url("${url}")`;
     });
     return () => {
       alive = false;
-      if (url) URL.revokeObjectURL(url);
+      tiles.release(key, tile);
     };
   }, [contrast]);
 

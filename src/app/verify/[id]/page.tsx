@@ -6,7 +6,13 @@ import { isSignalKey } from "@/core/verify";
 import { anchorRepo } from "@/server/config";
 import { VerifyRunner } from "./verify-runner";
 
-export const metadata: Metadata = { title: "기록 검증" };
+// 형식이 아닌 값은 제목을 정할 때도 404로 끝낸다. 페이지 본문에서만 notFound()를 부르면 서버 HTML은 404 제목이지만,
+// 브라우저가 화면을 이어받으며 이 화면의 제목('기록 검증')으로 탭 제목을 되돌린다.
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  if (!isSignalKey(id)) notFound();
+  return { title: "기록 검증" };
+}
 
 export default async function VerifySignalPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -36,7 +42,14 @@ export default async function VerifySignalPage({ params }: { params: Promise<{ i
           보세요. 사이트 코드에 기대지 않는 명령줄 검증기는 공개 예정입니다(아직 공개 전).
         </p>
       </div>
-      <VerifyRunner id={id} mirrorRepo={mirrorRepo} mirrorBranch={mirrorBranch} />
+      {/* 결과 칸의 최소 높이 = 화면 높이 − 20rem. 그러면 이 칸의 시작 위치가 20rem − main 아래 여백(sm 이상 264px, 휴대폰 280px)보다
+          아래인 한, 계산 중에도 푸터가 첫 화면 밖에 있다(11/18 측정 시작 위치: 1280px 폭 약 355px, 390px 폭 약 464px → 여유 91px·184px.
+          소개 문단이 넓게 줄 바뀌는 휴대폰 배치의 넓은 쪽, 약 600px 폭에서는 여유가 약 65px로 가장 작다고 추정).
+          그래서 로딩 카드가 짧은 오류 문장이나 긴 결과로 바뀌어도 보이는 곳에서 밀리는 것이 없다(운영 실측: 푸터가 보이면 CLS가 0.1을 넘었다).
+          위 소개 문단을 크게 줄이면 이 조건을 다시 확인한다. 인쇄에서는 100vh가 종이 높이라 빈 자리만 남기므로 끈다(print:min-h-0). */}
+      <div className="min-h-[calc(100vh-20rem)] print:min-h-0">
+        <VerifyRunner id={id} mirrorRepo={mirrorRepo} mirrorBranch={mirrorBranch} />
+      </div>
     </div>
   );
 }

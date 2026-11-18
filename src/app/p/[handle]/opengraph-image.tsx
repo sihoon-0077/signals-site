@@ -20,7 +20,8 @@ async function loadCard(handle: string) {
 
 // 카카오톡·X·페이스북은 og:image를 '이미지 주소' 기준으로 캐시해, 주소가 같으면 카드를 다시 받지 않는다.
 // 그래서 기록 수를 주소에 넣는다(/p/<handle>/opengraph-image/r12): 기록이 늘면 새 주소 → 새 카드.
-// 승인 전·거절·탈퇴·없는 주소는 빈 배열 → 페이지에 og:image가 아예 없고, 이미지 주소는 Next가 404로 답한다.
+// 승인 전·거절·탈퇴·없는 주소는 빈 배열 → 이 공급자의 카드 주소는 만들지 않고, 이미지 주소는 Next가 404로 답한다.
+// (그 주소의 404 화면 HTML에는 사이트 기본 카드(src/app/opengraph-image.tsx)가 붙는다: 공급자 정보는 들어 있지 않다.)
 export async function generateImageMetadata({ params }: { params: Promise<{ handle: string }> }) {
   const { handle } = await params;
   const card = await loadCard(handle);
@@ -96,20 +97,21 @@ export default async function Image({ params }: { params: Promise<{ handle: stri
         line: `${records} ${records === 1 ? "record" : "records"}`,
         tagline: "Paper records. Not a profit guarantee.",
       };
-  // 사이트와 같은 다크 팔레트(globals.css :root): 바탕 #0B0D10, 제목·기록 수 줄 #E6E8EB, 보조 #AEB5BE, 짧은 메타 #8C949F.
-  // 강조색 #A3A9FF는 SIGNALS 글자 하나에만 쓴다: 사이트 전체 규칙처럼 숫자(기록 수)를 강조색으로 칠하지 않고, 굵기로만 눈에 띄게 한다.
+  // 사이트와 같은 다크 팔레트(globals.css :root): 바탕 #08090a, 제목·기록 수 줄 #f7f8f8, 보조 #b4bcd0, 짧은 메타 #8a8f98,
+  // 테두리 = --line-strong(흰색 12%). 강조색 #a3a9ff는 SIGNALS 글자 하나에만 쓴다: 사이트 전체 규칙처럼 숫자(기록 수)를 강조색으로 칠하지 않고, 굵기로만 눈에 띄게 한다.
   // 1px 테두리는 다크 모드 메신저에서 카드 가장자리가 배경에 묻히지 않게 한다. Satori는 자식이 여럿인 div에 display:flex가 있어야 그린다.
+  // 사이트 기본 카드(src/app/opengraph-image.tsx)도 같은 틀·색이다: 한쪽만 바꾸지 말 것.
   return new ImageResponse(
     (
-      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 72, background: "#0B0D10", border: "1px solid #2A3038", color: "#E6E8EB", fontFamily: "NotoSansKR" }}>
-        <div style={{ fontSize: 30, fontWeight: 700, color: "#A3A9FF" }}>SIGNALS</div>
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 72, background: "#08090a", border: "1px solid rgba(255,255,255,0.12)", color: "#f7f8f8", fontFamily: "NotoSansKR" }}>
+        <div style={{ fontSize: 30, fontWeight: 700, color: "#a3a9ff" }}>SIGNALS</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <div style={{ fontSize: 76, fontWeight: 700 }}>{text.title}</div>
-          <div style={{ fontSize: 34, color: "#AEB5BE" }}>{text.sub}</div>
+          <div style={{ fontSize: 34, color: "#b4bcd0" }}>{text.sub}</div>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", fontSize: 30 }}>
-          <div style={{ color: "#E6E8EB", fontWeight: 700 }}>{text.line}</div>
-          <div style={{ color: "#8C949F", fontSize: 24 }}>{text.tagline}</div>
+          <div style={{ color: "#f7f8f8", fontWeight: 700 }}>{text.line}</div>
+          <div style={{ color: "#8a8f98", fontSize: 24 }}>{text.tagline}</div>
         </div>
       </div>
     ),

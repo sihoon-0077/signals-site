@@ -36,7 +36,7 @@ SIGNALS는 "결과 전에 봉인하고, 누구나 다시 대조하는 기록"이
 | Card (level 1) | `#0f1011` | `bg-card` | 카드·표·목록 |
 | Raised (level 2) | `#141516` | `bg-raised` | 강조 카드(CTA), 표 머리줄(admin), 아이콘 타일 |
 | Popover (level 3) | `#191a1b` | `bg-popover` | 메뉴·select 팝업 |
-| Selected | `#1c1c1f` | `bg-selected` | 선택된 탭(admin 구분 탭), secondary 버튼 hover |
+| Selected | `#1c1c1f` | `bg-selected` | 선택된 탭(admin 구분 탭), secondary 버튼 hover, 헤더 사전등록 버튼의 현재 화면 표시 |
 | Hover fill | `rgb(255 255 255 / 0.05)` | `bg-muted`, `bg-accent`, `bg-secondary` | 줄 hover, 현재 메뉴, 보조 칩 |
 | Accent tint | `#18182f` | `bg-primary-subtle` | 작은 인디고 칩·선택(높이 32px 이하 면에만) |
 
@@ -49,7 +49,7 @@ SIGNALS는 "결과 전에 봉인하고, 누구나 다시 대조하는 기록"이
 | line-subtle | `rgb(255 255 255 / 0.05)` | `border-line-subtle`, `divide-line-subtle` | 카드 안 구분선, 띠(band) 사이 | `#141516` |
 | border | `rgb(255 255 255 / 0.08)` | `border` (기본) | 카드·표·목록 테두리, 헤더 아래선 | `#1c1d1e` |
 | line-strong | `rgb(255 255 255 / 0.12)` | `border-line-strong` | hover 테두리, 사슬 레일, 점선 빈 상태 | `#262727` |
-| input | `#686b72` | `border-input` | 입력칸 경계(WCAG 1.4.11 3:1 이상) | — |
+| input | `#686b72` | `border-input` | 입력칸 경계(WCAG 1.4.11 3:1 이상), 헤더 사전등록 버튼의 현재 화면 테두리 | — |
 
 - 반투명 선은 어떤 면 위에서도 같은 '밝기 차이'로 보인다. 단, 배경이 반투명인 요소에 반투명 테두리를 주면 테두리가 배경 위에 한 번 더 겹쳐 밝아진다 → `gap-px` + `bg-border`로 칸 사이 선을 그리는 격자(KPI 등)에는 반드시 `bg-clip-padding`을 함께 쓴다.
 - 입력칸 테두리만은 반투명으로 낮추지 않는다(인쇄·저시력 대비 기준 3:1).
@@ -134,7 +134,7 @@ Tailwind에 새 글자 크기 이름을 만들면 `cn`(tailwind-merge)이 색 �
 | Mono value | `mono` | 13px | 400 | 1.7 | 0 | lead | 지문·시각·ID |
 | Legal | (푸터) | 13px | 400 | 1.75 | 0 | body | 법정 고지(최대 46rem 폭) |
 
-- 굵기는 400 / 500 / 600 + 히어로만 560. 700 이상은 쓰지 않는다 — 예외 하나: 동의 문구·처리방침의 법정 강조 `<strong>`은 브라우저 기본 굵기(700)를 그대로 둔다(법이 요구하는 '눈에 띄는 표시'). (참고로 삼은 시스템의 510·590은 쓰지 않는다: Pretendard가 늦게 오는 동안 Windows 대체 글꼴 Malgun Gothic은 400·700만 있어 510이 **굵게** 매칭된다.)
+- 굵기는 400 / 500 / 600 + 히어로만 560. 700 이상은 쓰지 않는다 — 예외 하나: 동의 문구·처리방침의 법정 강조 `<strong>`은 브라우저 기본 굵기(700)를 그대로 둔다(법이 요구하는 '눈에 띄는 표시'). (참고로 삼은 시스템의 510·590은 쓰지 않는다: Pretendard가 늦게 오는 동안 쓰는 Windows 대체 글꼴 Malgun Gothic은 보통·굵게뿐이라 그 중간 굵기를 낼 수 없다. 대체 면(globals.css "Pretendard Fallback") 범위 안 글자는 549까지 보통, 550부터 굵게, 범위 밖 글자는 시스템 글꼴 규칙대로 501부터 **굵게** 그려진다.)
 - `leading-relaxed`는 전역에서 1.7로 맞춘다(한글 본문 행간).
 - Tailwind 기본 `text-*`는 행간을 함께 바꾸므로, 행간을 지정할 때는 `cn()` 안에서 **글자 크기 → 행간** 순서로 쓴다.
 
@@ -181,7 +181,7 @@ Tailwind에 새 글자 크기 이름을 만들면 `cn`(tailwind-merge)이 색 �
 - `sticky top-0`, 높이 56px(휴대폰) / 64px(sm 이상). 바탕은 **캔버스와 같은 색** 80% + `backdrop-blur 20px`, 아래 8% 선(늘 보임, 스크롤 스크립트 없음). 페이지보다 밝은 띠로 만들지 않는다.
 - 왼쪽: LogoMark(20px, 360px 미만 숨김) + 워드마크 "SIGNALS"(15px / 600 / 자간 +0.06em, 360px 미만 +0.02em).
 - 메뉴: 14px / 500 / `text-tertiary` → hover `text-foreground`(100ms). 현재 페이지는 `aria-current="page"` + 5% 채움(색만으로 구분하지 않음). 높이 32px · 반경 8px(`inline-flex h-8 rounded-lg`)로 옆 사전등록 버튼과 같은 모양: 채운 현재 메뉴가 버튼보다 크면 그쪽이 더 무거운 버튼처럼 보인다. sm에서 다시 보이는 메뉴도 `sm:inline-flex`(inline이면 높이가 무시된다).
-- 오른쪽: 사전등록 버튼은 **outline 32px**(히어로의 주 버튼과 경쟁하지 않게). 320px 폭에서 한 줄에 들어가야 한다.
+- 오른쪽: 사전등록 버튼은 **outline 32px**(히어로의 주 버튼과 경쟁하지 않게). 320px 폭에서 한 줄에 들어가야 한다. 사전등록 화면(완료 화면 포함)에서는 이 버튼도 `aria-current="page"`를 달고 `bg-selected` + `border-input`(#686b72, 캔버스 대비 3.73:1)으로 현재 위치를 보인다. 바탕만으로는 안 보인다: outline의 평소 바탕이 이미 4% 흰색이라 메뉴의 5% 채움은 차이가 없고, `bg-selected` + `border-line-strong`은 평소와 1.11:1이며 hover 모양과 같다.
 - 검색창 없음. 스크롤에 반응하는 스크립트 없음.
 
 ### 4.3 Cards · Panels (`panel.tsx`)

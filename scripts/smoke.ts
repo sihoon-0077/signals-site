@@ -156,7 +156,8 @@ async function checkPages() {
   await expectStatus("없는 에이전트는 404", `/a/smoke-${rand}`, 404);
   await expectStatus("없는 주소는 404", `/smoke-${rand}`, 404);
 
-  // 승인 전·없는 주소에 일반 카드를 주면 공유 미리보기가 그 카드로 굳는다(F11).
+  // 승인 전·없는 주소의 '이미지 주소'에 일반 카드를 주면, 메신저가 그 이미지 주소로 카드를 캐시해 승인 뒤에도 미리보기가 굳는다(F11).
+  // (그 주소의 404 HTML에 사이트 기본 카드 /opengraph-image가 실리는 것은 다른 이미지 주소라 상관없다. 이 검사는 그대로 둔다.)
   // generateImageMetadata 때문에 이미지 주소는 /p/<주소>/opengraph-image/<id>(id는 r<기록 수>)뿐이다.
   // id 없는 /p/<주소>/opengraph-image는 라우트가 없어 앱 404 HTML이 나오므로 이미지 처리 코드를 전혀 확인하지 못한다.
   // 기록 0건 카드의 id(r0)로 요청하고, 앱 404 페이지가 아니라 이미지 라우트의 'Not Found'(text/plain)인지 본다.

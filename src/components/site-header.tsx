@@ -30,10 +30,19 @@ export function SiteHeader() {
             외부 고정 기록
           </NavLink>
           {/* 가입 화면 이름('공급자 무료 사전등록')과 맞춘다. '무료'까지 넣으면 320px 폭 휴대폰에서 헤더가 넘쳐 홈·가입 화면 본문에 둔다. */}
-          {/* 채운 인디고 버튼은 화면당 1개(홈 히어로의 주 버튼)라 헤더는 반투명 outline 32px로 둔다. */}
-          <Link href="/providers/join" className={cn(buttonVariants({ variant: "outline", size: "sm" }), "h-8 rounded-lg px-3 text-[0.8125rem]")}>
+          {/* 채운 인디고 버튼은 화면당 1개(홈 히어로의 주 버튼)라 헤더는 반투명 outline 32px로 둔다.
+              사전등록 화면(완료 화면 포함)에서는 다른 메뉴처럼 aria-current="page"를 달고, 테두리를 입력칸 경계색(#686b72, 캔버스 대비 3.73:1)으로 밝혀 현재 위치를 보인다.
+              바탕만 바꾸면 안 보인다: outline의 평소 바탕이 이미 4% 흰색이라 메뉴의 5% 채움은 차이가 없고, bg-selected·12% 테두리는
+              평소와 1.11:1이며 마우스를 올린 모양(8% + 12% 테두리)과 같다. aria-* 변형이 hover보다 뒤에 나와, 현재 화면에서는 올려도 그대로다. */}
+          <NavLink
+            href="/providers/join"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              "h-8 rounded-lg px-3 text-[0.8125rem] aria-[current=page]:border-input aria-[current=page]:bg-selected",
+            )}
+          >
             공급자 사전등록
-          </Link>
+          </NavLink>
         </nav>
       </div>
     </header>

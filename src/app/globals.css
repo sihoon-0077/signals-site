@@ -6,11 +6,41 @@
    이 줄을 지우면 Tailwind 기본 dark(prefers-color-scheme)가 살아나 OS 설정마다 화면이 달라진다. */
 @custom-variant dark (&:is(.dark *));
 
+/* Pretendard가 도착하기 전 잠깐 쓰는 대체 글꼴(Windows 맑은 고딕)의 폭을 Pretendard에 맞춘다.
+   맞추지 않으면 맑은 고딕이 16–18% 넓어서 문단이 한 줄 더 길게 그려졌다가, Pretendard가 오는 순간 줄이 줄며 아래 내용이 올라간다
+   (11/18 A/B, Windows Edge·느린 4G 첫 방문 CLS: 홈 0.050 → 0.0002).
+   84.6% = 홈 제목 줄(굵기 560·자간 −0.025em)을 브라우저에서 잰 폭 비율. size-adjust는 자간을 줄이지 않으므로 폭이 꼭 같아지는 값은
+   제목 85.0–85.5%, 자간 없는 본문 문장 중앙값 85.9%다 → 지금 값에서 대체 글꼴이 대개 0.5–1.5%(문장에 따라 3%까지) 좁다.
+   줄 수가 바뀔 만큼은 아니어서 위 A/B 흔들림은 모든 화면에서 0.03 미만이었다.
+   부작용: 대체 글꼴로 그린 글 상자가 Pretendard보다 2–4% 작아(글자 칸 높이 1.125em 대 1.193em 포함), 느린 첫 방문에서는 교체 순간
+   LCP가 한 번 더 기록된다(Windows Edge 9번 중 6번. 글자는 두 경우 모두 약 1초에 보인다). 웹 글꼴을 막은 환경에서는 이 면이 계속 쓰인다.
+   local()만 쓰므로 네트워크 요청이 없고, 맑은 고딕이 없는 기기(macOS·iOS·Android)에서는 이 규칙이 그냥 건너뛰어진다.
+   굵은 면이 따로 있어야 한다: 아래 html의 font-synthesis: none 때문에 굵기를 흉내 내지 않는다. @theme 안에는 둘 수 없다(Tailwind 규칙).
+   unicode-range: Pretendard가 범위로 선언하고 글리프도 실제로 가진 글자 중 한국어 화면 글에 쓰이는 것만(ASCII·한글·자주 쓰는 문장부호).
+   범위가 없으면 Pretendard가 그리지 않는 글자(ñ·ö 같은 라틴 확장, 키릴 문자, 옛한글 자모 ㅿ·ㆁ 등)를 교체가 끝난 뒤에도 영구히 84.6%로
+   그린다(공급자 이름 등 입력 글). 범위 밖 글자는 이 면을 건너뛰어 예전처럼 시스템 글꼴 100%로 그린다. 범위를 넓히면 site-polish 테스트가
+   Pretendard의 선언 범위와 글리프 표(cmap)로 확인한다. */
+@font-face {
+  font-family: "Pretendard Fallback";
+  src: local("Malgun Gothic"), local("MalgunGothic");
+  font-weight: 100 549;
+  size-adjust: 84.6%;
+  unicode-range: U+0020-007E, U+00A0, U+00B7, U+00D7, U+2013-2014, U+2018-2019, U+201C-201D, U+2022, U+2025-2026, U+2190-2193, U+2460-2473, U+3000-3003, U+3008-3011, U+3131-3164, U+318D, U+AC00-D7A3;
+}
+@font-face {
+  font-family: "Pretendard Fallback";
+  src: local("Malgun Gothic Bold"), local("MalgunGothicBold");
+  font-weight: 550 900;
+  size-adjust: 84.6%;
+  unicode-range: U+0020-007E, U+00A0, U+00B7, U+00D7, U+2013-2014, U+2018-2019, U+201C-201D, U+2022, U+2025-2026, U+2190-2193, U+2460-2473, U+3000-3003, U+3008-3011, U+3131-3164, U+318D, U+AC00-D7A3;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
-  --font-mono: var(--font-jetbrains-mono), "Pretendard Variable", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  /* "Pretendard Fallback"은 Pretendard 바로 뒤: 글꼴 목록은 Tailwind가 html·.font-sans에 글자 그대로 펼쳐 넣으므로 순서가 곧 우선순위다 */
+  --font-sans: "Pretendard Variable", Pretendard, "Pretendard Fallback", -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+  --font-mono: var(--font-jetbrains-mono), "Pretendard Variable", "Pretendard Fallback", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -131,7 +161,7 @@
 @media print {
   :root {
     color-scheme: light;
-    --background: #fff; --inset: #fff; --card: #fff; --raised: #fff; --popover: #fff; --muted: #fff; --secondary: #fff; --accent: #fff;
+    --background: #fff; --inset: #fff; --card: #fff; --raised: #fff; --popover: #fff; --muted: #fff; --secondary: #fff; --accent: #fff; --selected: #fff;
     --foreground: #111; --card-foreground: #111; --text-lead: #222; --muted-foreground: #333; --text-tertiary: #444;
     --border: #bbb; --line-subtle: #ccc; --line-strong: #999; --input: #888; --link: #1f3a99; --primary-subtle: #eee;
   }

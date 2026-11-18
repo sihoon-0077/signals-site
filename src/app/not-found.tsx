@@ -1,7 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { TYPE } from "@/components/typography";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+// 탭 제목·화면낭독기가 홈 제목으로 소개하지 않게(루트 템플릿으로 "페이지를 찾을 수 없습니다 · SIGNALS").
+export const metadata: Metadata = { title: "페이지를 찾을 수 없습니다" };
 
 // 공개된 화면 하나. 위의 '404'는 장식이라 화면낭독기에서는 숨긴다(제목이 같은 뜻을 이미 말한다).
 // 카드 없이 캔버스 위 글자 덩어리로 둔다: 큰 mono 숫자(disabled 색은 장식에만) → 제목 → 설명 → 테두리형 버튼. 효과는 넣지 않는다.

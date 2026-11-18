@@ -22,9 +22,10 @@ export function SiteFooter() {
           <Link href="/privacy" className="font-semibold text-foreground underline-offset-4 hover:underline">
             개인정보 처리방침
           </Link>
-          <Link href="/keys.json" className="transition-colors duration-100 hover:text-foreground">
+          {/* JSON 파일이라 Link 대신 a: Link는 화면에 보이는 순간 이 주소를 페이지처럼 미리 불러와(매번 서버 함수 실행) 버린다 */}
+          <a href="/keys.json" className="transition-colors duration-100 hover:text-foreground">
             공개키(keys.json)
-          </Link>
+          </a>
           <Link href="/anchors" className="transition-colors duration-100 hover:text-foreground">
             외부 고정 기록
           </Link>

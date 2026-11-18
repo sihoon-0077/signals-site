@@ -105,9 +105,9 @@ export default async function VerifyPage({ searchParams }: { searchParams: Promi
           휴대폰(sm 미만)에서는 명령을 줄바꿈해 다 보여 준다: 가로 스크롤 상자는 스크롤된다는 표시가 없어 명령이 잘린 것처럼 보인다.
           break-words라 빈칸(인자 사이)에서 먼저 줄을 바꾸고, 한 줄보다 긴 주소만 중간에서 끊는다. sm 이상은 그대로 한 줄 + 가로 스크롤. */}
       <section className="overflow-hidden rounded-xl border bg-card">
-        <p className="border-b border-line-subtle px-5 py-3.5 text-sm font-medium text-foreground sm:px-6">명령줄로 검증하기(검증기 공개 후 사용 가능)</p>
+        <p id="verify-cli-title" className="border-b border-line-subtle px-5 py-3.5 text-sm font-medium text-foreground sm:px-6">명령줄로 검증하기(검증기 공개 후 사용 가능)</p>
         <div className="space-y-3 px-5 py-5 text-sm leading-[1.7] sm:px-6">
-          <TerminalBlock className="max-sm:whitespace-pre-wrap max-sm:break-words">{`npm run verify -- ${siteUrl()} <지문64자리>${mirrorArgs}`}</TerminalBlock>
+          <TerminalBlock className="max-sm:whitespace-pre-wrap max-sm:break-words" labelledBy="verify-cli-title">{`npm run verify -- ${siteUrl()} <지문64자리>${mirrorArgs}`}</TerminalBlock>
           <p className="text-muted-foreground">
             명령줄 검증기 코드는 공개 저장소에 함께 올릴 예정이며, 아직 공개 전입니다. 그 전에는 각 기록의 원본 JSON을 받아 두고, OpenTimestamps 증명은 공개
             저장소의 .ots 파일로 확인합니다.

@@ -21,6 +21,12 @@ export const metadata: Metadata = {
   title: { default: "SIGNALS — 결과 전에 봉인하고 누구나 대조하는 AI 시그널 기록", template: "%s · SIGNALS" },
   description:
     "AI·퀀트 시그널을 결과가 나오기 전에 봉인하고, 그 지문을 매일 외부에 고정해 누구나 다시 대조할 수 있게 합니다. 지금은 출시 전 무료 기간으로 시그널을 팔거나 결제를 받지 않으며, 투자 조언을 하지 않습니다.",
+  // 공유 미리보기(카카오톡·X 등). og·twitter의 제목·설명은 Next가 화면마다 위 title·description에서 채운다(문구를 두 번 쓰지 않는다).
+  // 카드 이미지는 src/app/opengraph-image.tsx(공급자 화면은 자기 카드). 아래 화면에서 openGraph를 따로 정하면 이 묶음이 통째로 바뀌어
+  // type·siteName·locale은 물론 사이트 카드 이미지도 빠진다(Next는 그 화면 폴더에 opengraph-image 파일이 있을 때만 이미지를 다시 붙인다).
+  // 그때는 셋을 같이 적고, 그 폴더에 opengraph-image를 두거나 images도 적는다(twitter도 같다). canonical은 두지 않는다: 루트에 두면 모든 화면이 "/"를 가리킨다.
+  openGraph: { type: "website", siteName: "SIGNALS", locale: "ko_KR" },
+  twitter: { card: "summary_large_image" },
 };
 
 // 다크 단일 테마: 휴대폰 주소창 색과 브라우저 기본 부품(스크롤바·폼)을 화면 배경과 맞춘다.
